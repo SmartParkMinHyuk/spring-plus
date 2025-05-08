@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -47,21 +49,21 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
-
-        return todos.map(todo -> new TodoResponse(
-                todo.getId(),
-                todo.getTitle(),
-                todo.getContents(),
-                todo.getWeather(),
-                new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
-                todo.getCreatedAt(),
-                todo.getModifiedAt()
-        ));
-    }
+//    public Page<TodoResponse> getTodos(int page, int size) {
+//        Pageable pageable = PageRequest.of(page - 1, size);
+//
+//        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+//
+//        return todos.map(todo -> new TodoResponse(
+//                todo.getId(),
+//                todo.getTitle(),
+//                todo.getContents(),
+//                todo.getWeather(),
+//                new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
+//                todo.getCreatedAt(),
+//                todo.getModifiedAt()
+//        ));
+//    }
 
     public TodoResponse getTodo(long todoId) {
         Todo todo = todoRepository.findByIdWithUser(todoId)
@@ -78,5 +80,20 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         );
+    }
+
+    public Page<TodoResponse> searchTodos(String weather, LocalDateTime start, LocalDateTime end, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Todo> todos = todoRepository.searchTodos(weather, start, end, pageable);
+
+        return todos.map(todo -> new TodoResponse(
+                todo.getId(),
+                todo.getTitle(),
+                todo.getContents(),
+                todo.getWeather(),
+                new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
+                todo.getCreatedAt(),
+                todo.getModifiedAt()
+        ));
     }
 }
